@@ -1,5 +1,3 @@
-# /opt/fir/FIR/fir_method_extension/admin.py
-
 from django.contrib import admin
 from django.db.models import Count, Q
 from django.utils.html import format_html

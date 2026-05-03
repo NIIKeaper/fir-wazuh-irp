@@ -1,4 +1,3 @@
-# /opt/fir/FIR/fir_method_extension/urls.py
 from django.urls import path
 from . import views
 

@@ -1,5 +1,3 @@
-# /opt/fir/FIR/fir_method_extension/models.py
-
 from django.db import models
 from django.contrib.auth.models import User
 from incidents.models import Incident, IncidentCategory

@@ -1,7 +1,7 @@
-# fir_method_extension/views.py
 import json
 import logging
 import re
+import sys
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -13,12 +13,10 @@ from fir_method_extension.models import MethodIncidentData
 from fir_artifacts.models import Artifact
 from crum import set_current_user
 
-
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count, Q
 from datetime import timedelta
-import sys
 
 from django.shortcuts import  redirect, get_object_or_404, reverse
 from django.contrib.auth.decorators import login_required
@@ -202,10 +200,6 @@ def siem_ingest_api(request):
 
 
 
-
-
-
-
 logger = logging.getLogger(__name__)
 
 @staff_member_required
@@ -290,16 +284,6 @@ def ir_dashboard(request):
     sys.stderr.flush()
     
     return render(request, 'fir_method_extension/ir_dashboard.html', context)
-
-
-
-
-
-
-
-
-
-
 
 
 

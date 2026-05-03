@@ -39,13 +39,10 @@ except ImportError:
     pass
 
 
-# === В КОНЕЦ ФАЙЛА ===
 import os
 
-# 🔐 Токен для SIEM-интеграции
 SIEM_WEBHOOK_TOKEN = os.getenv('FIR_SIEM_TOKEN', 'dev-token-change-me-in-production')
 
-# 📝 Логирование (безопасное обновление)
 if 'LOGGING' in globals() and isinstance(LOGGING, dict):
     LOGGING.setdefault('loggers', {})
     LOGGING['loggers']['fir_method_extension'] = {
