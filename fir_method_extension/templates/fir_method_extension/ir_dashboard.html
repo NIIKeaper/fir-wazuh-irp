@@ -1,0 +1,381 @@
+{# /opt/fir/FIR/fir_method_extension/templates/fir_method_extension/ir_dashboard.html #}
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+<style>
+    
+    #dashboard-content { 
+        padding: 20px; 
+        background: #f5f5f5; 
+        max-width: 1200px; 
+        margin: 0 auto;
+    }
+    
+    #dashboard-content h1 { 
+        margin: 0 0 20px 0; 
+        color: #333; 
+        font-size: 24px;
+        font-weight: 600;
+    }
+    
+    
+    .kpi-row { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+        gap: 15px; 
+        margin-bottom: 20px; 
+    }
+    
+    .kpi-box { 
+        background: white; 
+        padding: 20px; 
+        border-radius: 8px; 
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .kpi-number { 
+        font-size: 32px; 
+        font-weight: bold; 
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .kpi-number.warning { color: #ff9800; }
+    .kpi-number.success { color: #4caf50; }
+    .kpi-number.danger { color: #f44336; }
+    
+    .kpi-text { 
+        font-size: 12px; 
+        color: #666; 
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    
+    .dash-section { 
+        background: white; 
+        border-radius: 8px; 
+        padding: 20px; 
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .section-header { 
+        font-size: 16px; 
+        font-weight: 600; 
+        margin: 0 0 15px 0;
+        color: #333;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    /* Bars */
+    .bar-item { 
+        display: flex; 
+        align-items: center; 
+        margin: 12px 0;
+    }
+    
+    .bar-label { 
+        width: 120px; 
+        font-size: 13px; 
+        color: #555;
+        font-weight: 500;
+    }
+    
+    .bar-bg { 
+        flex: 1; 
+        height: 24px; 
+        background: #e0e0e0; 
+        border-radius: 4px; 
+        overflow: hidden;
+        margin: 0 10px;
+    }
+    
+    .bar-fill { 
+        height: 100%; 
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        transition: width 0.3s;
+    }
+    
+    .bar-number { 
+        width: 40px; 
+        text-align: right; 
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    
+    .two-columns { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 20px;
+    }
+    
+    @media (max-width: 768px) { 
+        .two-columns { grid-template-columns: 1fr; }
+    }
+    
+    
+    .sla-item { margin: 15px 0; }
+    .sla-header { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #333;
+    }
+    .sla-good { color: #4caf50; }
+    .sla-bad { color: #f44336; }
+    
+    
+    .daily-chart { 
+        display: flex; 
+        align-items: flex-end; 
+        height: 100px; 
+        gap: 8px;
+        padding: 10px 0;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .day-col { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        justify-content: flex-end;
+    }
+    
+    .day-value { 
+        font-size: 11px; 
+        font-weight: 600; 
+        margin-bottom: 4px;
+        color: #333;
+    }
+    
+    .day-bar { 
+        width: 100%; 
+        background: #2196f3; 
+        border-radius: 4px 4px 0 0;
+        min-height: 4px;
+    }
+    
+    .day-label { 
+        font-size: 10px; 
+        color: #888; 
+        margin-top: 6px;
+    }
+    
+    
+    .time-row { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+        gap: 15px;
+    }
+    
+    .time-box { 
+        text-align: center; 
+        padding: 15px; 
+        background: #f9f9f9; 
+        border-radius: 6px;
+    }
+    
+    .time-value { 
+        font-size: 24px; 
+        font-weight: bold; 
+        color: #333;
+    }
+    
+    .time-label { 
+        font-size: 12px; 
+        color: #666; 
+        margin-top: 5px;
+    }
+    
+    
+    .action-btn { 
+        display: inline-block; 
+        padding: 10px 20px; 
+        background: #2196f3; 
+        color: white; 
+        text-decoration: none; 
+        border-radius: 6px; 
+        margin-right: 10px; 
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .action-btn:hover { background: #1976d3; }
+    .action-btn.secondary { background: #757575; }
+    .action-btn.secondary:hover { background: #616161; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="dashboard-content">
+  <h1>IR Manager Dashboard</h1>
+  
+  {# === KPI ROW === #}
+  <div class="kpi-row">
+    <div class="kpi-box">
+      <div class="kpi-number">{{ total_active|default:0 }}</div>
+      <div class="kpi-text">Active Incidents</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-number">{{ phase_stats.closed|default:0 }}</div>
+      <div class="kpi-text">Closed</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-number warning">{{ recent_escalations|default:0 }}</div>
+      <div class="kpi-text">Escalations (24h)</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-number {% if sla_compliance_good %}success{% else %}danger{% endif %}">
+        {{ sla_compliance_pct|default:100 }}%
+      </div>
+      <div class="kpi-text">SLA Compliance</div>
+    </div>
+  </div>
+  
+  <div class="dash-section">
+    <div class="section-header">Incidents by Phase</div>
+    {% if phase_chart_data %}
+      {% for item in phase_chart_data %}
+      <div class="bar-item">
+        <span class="bar-label">{{ item.label }}</span>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width: {{ item.percent }}%; background: {{ item.color }};">
+            {% if item.percent > 15 %}{{ item.count }}{% endif %}
+          </div>
+        </div>
+        <span class="bar-number">{{ item.count }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color: #888; margin: 0;">No active incidents</p>
+    {% endif %}
+  </div>
+  
+  <div class="two-columns">
+    
+   
+    <div class="dash-section">
+      <div class="section-header">SLA Status</div>
+      
+      <div class="sla-item">
+        <div class="sla-header">
+          <span>Compliant</span>
+          <span class="sla-good">{{ sla_compliant }} / {{ sla_total_active }}</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width: {{ sla_compliance_pct }}%; background: #4caf50;"></div>
+        </div>
+      </div>
+      
+      <div class="sla-item">
+        <div class="sla-header">
+          <span>Breached</span>
+          <span class="sla-bad">{{ sla_breached }} / {{ sla_total_active }}</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width: {{ sla_breached_pct }}%; background: #f44336;"></div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px;">
+          <span style="font-weight: 500; color: #333;">Recent Escalations (24h) </span>
+          <b>{{ recent_escalations|default:0 }}</b>
+        </div>
+      </div>
+    </div>
+    
+    <div class="dash-section">
+      <div class="section-header">By Assigned Role</div>
+      {% if role_chart_data %}
+        {% for item in role_chart_data %}
+        <div class="bar-item">
+          <span class="bar-label">{{ item.label }}</span>
+          <div class="bar-bg">
+            <div class="bar-fill" style="width: {{ item.width }}%; background: #607d8b;"></div>
+          </div>
+          <span class="bar-number">{{ item.count }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: #888; margin: 0;">No role data</p>
+      {% endif %}
+    </div>
+  </div>
+  
+  <div class="dash-section">
+    <div class="section-header">Average Time per Phase (hours)</div>
+    <div class="time-row">
+      <div class="time-box">
+        <div class="time-value">{{ phase_avg.phase1|default:"-" }}</div>
+        <div class="time-label">Analysis</div>
+      </div>
+      <div class="time-box">
+        <div class="time-value">{{ phase_avg.phase2|default:"-" }}</div>
+        <div class="time-label">Containment</div>
+      </div>
+      <div class="time-box">
+        <div class="time-value">{{ phase_avg.phase3|default:"-" }}</div>
+        <div class="time-label">Recovery</div>
+      </div>
+      <div class="time-box">
+        <div class="time-value">{{ phase_avg.phase4|default:"-" }}</div>
+        <div class="time-label">Post-incident</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dash-section">
+    <div class="section-header">Incidents Created (Last 7 Days)</div>
+    <div class="daily-chart">
+      {% for item in daily_stats %}
+      <div class="day-col">
+        {% if item.count > 0 %}
+        <span class="day-value">{{ item.count }}</span>
+        {% endif %}
+        <div class="day-bar" style="height: {{ item.width }}%;"></div>
+        <span class="day-label">{{ item.day }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <div style="margin-top: 20px;">
+    <a href="../methodincidentdata/" class="action-btn">View All Incidents</a>
+    <a href="?refresh=1" class="action-btn secondary">Refresh Data</a>
+  </div>
+</div>
+
+
+<div style="margin-top:40px; padding:20px; background:#ffeb3b; border:2px dashed #000; font-family:monospace; color:#000;">
+    <h3>DEBUG DATA</h3>
+    <p>Total Active (from view): <b>{{ total_active }}</b></p>
+    <p>Phase Data Count: <b>{{ phase_chart_data|length }}</b></p>
+    <p>SLA Compliance: <b>{{ sla_compliance_pct }}%</b></p>
+    
+    <hr>
+    <p>Raw Phase Counts:</p>
+    <ul>
+        <li>Phase 1 (Analysis): {{ phase_stats.phase1 }}</li>
+        <li>Phase 2 (Containment): {{ phase_stats.phase2 }}</li>
+        <li>Closed: {{ phase_stats.closed }}</li>
+    </ul>
+</div>
+
+{% endblock %}

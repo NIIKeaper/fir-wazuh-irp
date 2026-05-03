@@ -1,0 +1,151 @@
+/fir/config/production.py
+/fir/config/prodendev.py
+/fir/config/dev.py
+/fir/config/installed_apps.txt
+fir-env/
+
+# Dev
+/db.sqlite3
+/celerybeat-schedule
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Mac
+.DS_Store
+
+# virtualenv
+/include
+/bin
+venv/
+.venv/
+
+# vim swap files
+*.swp
+
+# JetBrains projects
+/.idea/*
+!/.idea/runConfigurations/
+
+
+######################################################################################
+
+# === Python/Django ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === Virtual Environment ===
+env-FIR/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# === Django/FIR Specific ===
+
+
+fir_method_extension/fir/media/
+fir_method_extension/fir/staticfiles/
+fir_method_extension/fir/logs/
+fir_method_extension/fir/tmp/
+fir_method_extension/db.sqlite3
+
+fir_method_extension/.ioc_cache/
+
+# === Wazuh Integration ===
+wazuh_integration/.ioc_cache/
+wazuh_integration/*.log
+wazuh_integration/*.conf.bak
+wazuh_integration/test_alerts/
+
+# === System/IDE ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# === Secrets & Env ===
+.env
+*.pem
+*.key
+secrets/
+credentials.json
+service_account.json
+
+

@@ -1,0 +1,12 @@
+from django.urls import re_path
+
+from incidents import views
+
+app_name = "incidents"
+
+urlpatterns = [
+    re_path(r"^$", views.incident_display, {"is_incident": True}, name="index"),
+    re_path(r"^(?P<incident_id>\d+)/$", views.details, name="details"),
+    re_path(r"^(?P<incident_id>\d+)/followup/$", views.followup, name="followup"),
+    re_path(r"^(?P<incident_id>\d+)/edit/$", views.edit_incident, name="edit"),
+]

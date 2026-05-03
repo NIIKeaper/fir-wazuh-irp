@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Access denied" %}{% endblock %}
+{% block content %}
+  <article class="text-center pt-3 fs-5">
+    <img alt="{% trans "Forbidden" %}" src="{% static "img/403.png" %}">
+    <h1 class="display-4">{% trans "Forbidden" %}</h1>
+    <p>{% trans "You don't have permission to access the requested resource." %}</p>
+    <a class="text-decoration-none" href="{% url "dashboard:main" %}">{% trans "Go to the dashboard!" %}</a>
+  </article>
+{% endblock %}

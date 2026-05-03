@@ -1,0 +1,8 @@
+{% for attribute in attributes %}
+<tr class="attribute-item text-break">
+  <td class="head">{{ attribute.name }}</td>
+  <td>{{ attribute.value }}</td>
+  <td><span class="delete-attribute" data-attribute="{{ attribute.id }}"><i class="bi bi-x-circle"></i></span></td>
+  {% csrf_token %}
+</tr>
+{% endfor %}

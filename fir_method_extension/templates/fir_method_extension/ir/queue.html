@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% block title %}IR Queue{% endblock %}
+{% block content %}
+<h2>Incident Response Queue</h2>
+
+{% if messages %}
+  {% for message in messages %}
+    <div style="padding:10px;margin:10px 0;border-radius:4px;background:{% if message.tags == 'error' %}#f8d7da{% elif message.tags == 'success' %}#d4edda{% else %}#fff3cd{% endif %};">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<table style="width:100%;border-collapse:collapse;margin-top:16px;">
+  <thead>
+    <tr style="background:#f5f5f5;text-align:left;">
+      <th style="padding:10px;border-bottom:1px solid #ddd;">ID</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Subject</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Category</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Status</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Accepted By</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Created</th>
+      <th style="padding:10px;border-bottom:1px solid #ddd;">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in incidents %}
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:10px;">{{ item.incident.id }}</td>
+      <td style="padding:10px;">
+        <a href="{% url 'fir_method_extension:ir_incident_detail' item.incident.id %}" style="text-decoration:none;color:#0066cc;">
+          {{ item.incident.subject }}
+        </a>
+      </td>
+      <td style="padding:10px;">{{ item.incident.category.name|default:"-" }}</td>
+      <td style="padding:10px;">{{ item.incident.status.name }}</td>
+      <td style="padding:10px;">{{ item.accepted_by.username|default:"Unassigned" }}</td>
+      <td style="padding:10px;">{{ item.incident.date|date:"d.m.Y H:i" }}</td>
+      <td style="padding:10px;">
+        {% if not item.accepted_at %}
+          <form method="post" action="{% url 'fir_method_extension:accept_incident' item.incident.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" style="padding:6px 12px;background:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;">Accept</button>
+          </form>
+        {% else %}
+          <a href="{% url 'fir_method_extension:ir_incident_detail' item.incident.id %}" style="padding:6px 12px;background:#007bff;color:white;border-radius:4px;text-decoration:none;">Open</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" style="padding:20px;text-align:center;color:#666;">No incidents in queue</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

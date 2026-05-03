@@ -1,0 +1,40 @@
+#yeti-count {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.send {
+  margin-bottom: 10px;
+}
+
+
+/* Tags input */
+.tags {
+  padding: 6px;
+}
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.tag-pill {
+  color: var(--bs-primary-text-emphasis);
+  background-color: var(--bs-primary-bg-subtle);
+  border-radius: 12px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 5px;
+}
+.tag-pill button {
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  cursor: pointer;
+}
+.tag-input {
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 100px;
+}

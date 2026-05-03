@@ -1,0 +1,46 @@
+{% load fir_nuggets %}
+{% load i18n %}
+
+{% if incident.nugget_set.count > 0 %}
+<div class='investigation-timeline'>
+<h2>{% trans "Investigation timeline" %}</h2>
+
+<div class='remarks'>
+	<h3>{% trans "General remarks" %}</h3>
+	<table class='table'>
+	<tr>
+		<th>{% trans "Source" %}</th>
+		<th>{% trans "Remark" %}</th>
+	 </tr>
+
+	{% for n in incident.nugget_set.all|has_not:"start_timestamp"%}
+		<tr id='nugget_{{n.id}}'>
+			<td><span class='nugget_source'>{{n.source}}</span></td>
+			<td><span class='nugget_interpretation'>{{n.interpretation}}</span></td>
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+
+<div class='timeline'>
+	<h3>{% trans "Technical timeline" %}</h3>
+	<table class='table'>
+		<tr>
+			<th>{% trans "Timestamp" %}</th>
+			<th>{% trans "Source" %}</th>
+			<th>{% trans "Interpretation" %}</th>
+		 </tr>
+
+		{% for n in incident.nugget_set.all|order_by:"start_timestamp"|has:"start_timestamp"%}
+			<tr id='nugget_{{n.id}}'>
+				<td class='nugget_timestamp'><span>{{n.start_timestamp|date:"Y-m-d G:i"}} {% if n.end_timestamp%} - {{n.end_timestamp|date:"Y-m-d G:i"}}{% endif%}</span></td>
+				<td><span class='nugget_source'>{{n.source}}</span></td>
+				<td><span class='nugget_interpretation'>{{n.interpretation}}</span></td>
+			</tr>
+		{% endfor %}
+
+	</table>
+</div>
+
+</div>
+{%endif%}

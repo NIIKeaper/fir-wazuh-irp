@@ -1,0 +1,63 @@
+{% load i18n %}
+{% load fir_plugins %}
+{% load fir_artifacts %}
+{% load authorization %}
+{% has_perm "incidents.handle_incidents" obj=event as can_handle_incident %}
+<div class="widget border border-info-subtle {% if event.file_set.count == 0 %}visually-hidden{% endif %}" id="details-files">
+<h4 class="widget text-info-emphasis bg-info-subtle border border-info-subtle">{% trans "Related files" %}</h4>
+    {% if event.file_set.count > 0 %}
+        <table class="table table-condensed files fixed">
+            <thead>
+                <tr>
+                    <th class="date-column">{% trans "Date" %}</th>
+                    <th>{% trans "File" %}</th>
+                    <th>{% trans "Description" %}</th>
+                    <th class="icon-column"></th>
+                </tr>
+            </thead>
+            {% for file in event.file_set.all %}
+                <tr>
+                    <td>{{ file.date }}</td>
+                    <td>
+                        <a href="/api/files/{{ file.id }}/download">
+                            {{ file.getfilename }}
+                        </a>
+                    </td>
+                    <td>{{ file.description }}</td>
+                    <td class="icon-column">
+                        {% if can_handle_incident %}
+			<span class="details-file-delete" data-id="{{ file.id }}">
+                            <button type="submit" class="btn btn-link btn-sm icon">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    {% if can_handle_incident %}
+    <div id="upload_form" data-id="{{ event.id }}">
+        <div class="upload">
+            <span>{% trans "Dropzone" %}</span>
+            <input type="file" name="file" id="id_file" multiple />
+        </div>
+        <table id="filetable" class="table table-condensed"></table>
+    </div>
+    <a class="btn btn-sm btn-default" href="#" id="btn-browse">
+        <i class="bi bi-file-earmark"></i> {% trans "Browse..." %}
+    </a>
+    <a class="btn btn-sm btn-default" href="#" id="btn-upload">
+        <i class="bi bi-upload"></i> {% trans "Upload files" %}
+    </a>
+    {% endif %}
+    {% if event.file_set.count > 0 %}
+        <a class="btn btn-sm btn-default" href="/api/files/{{ event.id }}/download-all">
+            <i class="bi bi-download"></i> {% trans "Download archive" %}
+        </a>
+    {% endif %}
+</div>
+
+{% get_correlated_artifacts event %}
+{% csrf_token %}

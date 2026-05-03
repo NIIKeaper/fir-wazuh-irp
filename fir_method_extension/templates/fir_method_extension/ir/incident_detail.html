@@ -1,0 +1,343 @@
+{% extends "admin/base_site.html" %}
+{% block title %}{{ title|default:"Incident Detail" }}{% endblock %}
+
+{% block extrastyle %}
+<style>
+    :root {
+        --bg-page: #f5f7fa;
+        --bg-card: #ffffff;
+        --bg-input: #ffffff;
+        --text-primary: #2c3e50;
+        --text-secondary: #64748b;
+        --text-muted: #94a3b8;
+        --border: #e2e8f0;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --step-pending: #fff7ed;
+        --step-completed: #f0fdf4;
+        --step-failed: #fef2f2;
+    }
+    
+    body { background: var(--bg-page); color: var(--text-primary); }
+    
+    .ir-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .ir-title { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+    .ir-title a { color: var(--text-secondary); text-decoration: none; margin-right: 12px; }
+    .ir-title a:hover { color: var(--accent); }
+    
+    .ir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 768px) { .ir-grid { grid-template-columns: 1fr; } }
+    
+    .ir-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .ir-card h3 { margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    
+    .ir-field { margin: 8px 0; }
+    .ir-field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+    .ir-field-value { font-size: 14px; color: var(--text-primary); }
+    
+    .ir-notes { margin-top: 16px; }
+    .ir-notes textarea { width: 100%; min-height: 120px; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); font-family: inherit; resize: vertical; }
+    .ir-notes textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    
+    .ir-btn { display: inline-block; padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+    .ir-btn:hover { background: var(--accent-hover); }
+    .ir-btn-secondary { background: var(--text-secondary); }
+    .ir-btn-secondary:hover { background: #475569; }
+    .ir-btn-success { background: var(--success); }
+    .ir-btn-success:hover { background: #16a34a; }
+    
+    .steps-list { margin-top: 12px; }
+    .step-item { padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); }
+    .step-item.step-pending { background: var(--step-pending); border-left: 4px solid var(--warning); }
+    .step-item.step-completed { background: var(--step-completed); border-left: 4px solid var(--success); }
+    .step-item.step-failed { background: var(--step-failed); border-left: 4px solid var(--danger); }
+    
+    .step-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .step-title { font-weight: 600; color: var(--text-primary); }
+    .step-status { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; text-transform: uppercase; }
+    .step-status.pending { background: var(--warning); color: white; }
+    .step-status.completed { background: var(--success); color: white; }
+    .step-status.failed { background: var(--danger); color: white; }
+    .step-status.skipped { background: var(--text-muted); color: white; }
+    
+    .step-instruction { color: var(--text-primary); margin: 4px 0 8px 0; }
+    .step-expected { color: var(--text-secondary); font-size: 13px; margin: 4px 0; }
+    .step-meta { color: var(--text-muted); font-size: 12px; margin-top: 8px; }
+    
+    .step-form { margin-top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .step-form select, .step-form input { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); font-size: 13px; }
+    .step-form button { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; }
+    
+    .export-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .export-section h3 { margin: 0 0 12px 0; }
+    .export-buttons { display: flex; gap: 8px; }
+    
+    .artifacts-list { margin: 8px 0 0 20px; }
+    .artifacts-list li { color: var(--text-primary); }
+    
+    .messages { margin: 16px 0; }
+    .message { padding: 10px; border-radius: 6px; margin-bottom: 8px; }
+    .message.error { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+    .message.success { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+    .message.warning { background: #fff7ed; color: var(--warning); border: 1px solid #fed7aa; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if md %}
+<div class="ir-card" style="margin-bottom: 16px; background: #f8fafc; border-left: 4px solid var(--accent); padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">
+            Current Phase: 
+            {% if md.get_current_phase == 1 %}Phase 1: Detection & Analysis
+            {% elif md.get_current_phase == 2 %}Phase 2: Damage Minimization
+            {% elif md.get_current_phase == 3 %}Phase 3: Eradication & Recovery
+            {% elif md.get_current_phase == 4 %}Phase 4: Post-Incident Analysis
+            {% else %}Not Assigned{% endif %}
+        </div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Incident #{{ md.incident.id }}</div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 8px;">
+        \
+        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;
+                background: {% if md.get_current_phase == 1 %}var(--accent); color: white
+                {% elif md.get_current_phase > 1 %}var(--success); color: white
+                {% else %}var(--border); color: var(--text-muted){% endif %};
+                border: 2px solid {% if md.get_current_phase == 1 %}var(--accent-hover){% else %}transparent{% endif %};">1</div>
+            <span style="margin-top: 6px; font-size: 11px; text-align: center; color: {% if md.get_current_phase == 1 %}var(--accent); font-weight: 600
+                {% elif md.get_current_phase > 1 %}var(--success)
+                {% else %}var(--text-muted){% endif %};">Detection</span>
+        </div>
+        
+        <div style="flex: 1; height: 3px; background: {% if md.get_current_phase >= 2 %}var(--success){% else %}var(--border){% endif %}; border-radius: 2px;"></div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;
+                background: {% if md.get_current_phase == 2 %}var(--accent); color: white
+                {% elif md.get_current_phase > 2 %}var(--success); color: white
+                {% else %}var(--border); color: var(--text-muted){% endif %};
+                border: 2px solid {% if md.get_current_phase == 2 %}var(--accent-hover){% else %}transparent{% endif %};">2</div>
+            <span style="margin-top: 6px; font-size: 11px; text-align: center; color: {% if md.get_current_phase == 2 %}var(--accent); font-weight: 600
+                {% elif md.get_current_phase > 2 %}var(--success)
+                {% else %}var(--text-muted){% endif %};">Minimization</span>
+        </div>
+        
+        <div style="flex: 1; height: 3px; background: {% if md.get_current_phase >= 3 %}var(--success){% else %}var(--border){% endif %}; border-radius: 2px;"></div>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;
+                background: {% if md.get_current_phase == 3 %}var(--accent); color: white
+                {% elif md.get_current_phase == 4 %}var(--success); color: white
+                {% else %}var(--border); color: var(--text-muted){% endif %};
+                border: 2px solid {% if md.get_current_phase == 3 %}var(--accent-hover){% else %}transparent{% endif %};">3</div>
+            <span style="margin-top: 6px; font-size: 11px; text-align: center; color: {% if md.get_current_phase == 3 %}var(--accent); font-weight: 600
+                {% elif md.get_current_phase == 4 %}var(--success)
+                {% else %}var(--text-muted){% endif %};">Eradication</span>
+        </div>
+        
+        <div style="flex: 1; height: 3px; background: {% if md.get_current_phase >= 4 %}var(--success){% else %}var(--border){% endif %}; border-radius: 2px;"></div>
+        
+        
+        <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;
+                background: {% if md.get_current_phase == 4 %}var(--accent); color: white
+                {% else %}var(--border); color: var(--text-muted){% endif %};
+                border: 2px solid {% if md.get_current_phase == 4 %}var(--accent-hover){% else %}transparent{% endif %};">4</div>
+            <span style="margin-top: 6px; font-size: 11px; text-align: center; color: {% if md.get_current_phase == 4 %}var(--accent); font-weight: 600
+                {% else %}var(--text-muted){% endif %};">Post-Incident</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+<
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    
+    <div class="ir-header">
+        <div class="ir-title">
+            <a href="{% url 'fir_method_extension:ir_queue' %}">&larr; Queue</a>
+            | Incident #{{ md.incident.id }}: {{ md.incident.subject }}
+        </div>
+        <div class="export-buttons">
+            <a href="{% url 'fir_method_extension:export_report' md.incident.id %}?format=csv" class="ir-btn ir-btn-secondary">Export CSV</a>
+            <a href="{% url 'fir_method_extension:export_report' md.incident.id %}?format=html" class="ir-btn ir-btn-secondary" target="_blank">Preview HTML</a>
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="ir-grid">
+        <div class="ir-card">
+            <h3>Incident Info</h3>
+            <div class="ir-field"><label>Status</label><div class="ir-field-value">{{ md.incident.status.name }}</div></div>
+            <div class="ir-field"><label>Severity</label><div class="ir-field-value">{{ md.incident.severity.name }}</div></div>
+            <div class="ir-field"><label>Category</label><div class="ir-field-value">{{ md.incident.category.name|default:"-" }}</div></div>
+
+            {% if md.incident.description %}
+            <div class="ir-field">
+                <label>Description</label>
+                <div class="ir-field-value" style="white-space: pre-wrap; font-size: 13px; background: #f8fafc; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
+                    {{ md.incident.description|linebreaksbr }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="ir-field"><label>Created</label><div class="ir-field-value">{{ md.incident.date|date:"d.m.Y H:i" }}</div></div>
+            {% if md.accepted_at %}
+            <div class="ir-field"><label>Accepted</label><div class="ir-field-value">{{ md.accepted_by.username }} at {{ md.accepted_at|date:"d.m.Y H:i" }}</div></div>
+            {% endif %}
+            {% if md.incident.artifacts.all %}
+            <div class="ir-field">
+                <label>Artifacts</label>
+                <ul class="artifacts-list">
+                    {% for art in md.incident.artifacts.all %}
+                    <li>[{{ art.type }}] {{ art.value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="ir-card">
+            <h3>Assignment & Playbook</h3>
+            <div class="ir-field"><label>Role</label><div class="ir-field-value">{{ md.get_assigned_role_display }}</div></div>
+            <div class="ir-field"><label>Assigned To</label><div class="ir-field-value">{{ md.assigned_to.username|default:"Unassigned" }}</div></div>
+            <div class="ir-field"><label>Current Phase</label><div class="ir-field-value">{{ md.get_current_phase|default:"-" }}</div></div>
+            {% if md.applied_playbook %}
+            <div class="ir-field"><label>Playbook</label><div class="ir-field-value">{{ md.applied_playbook.name }} (v{{ md.applied_playbook.version }})</div></div>
+            {% else %}
+            <div class="ir-field"><label>Playbook</label><div class="ir-field-value" style="color: var(--text-muted);">Not assigned</div></div>
+            {% endif %}
+            {% if md.sla_deadline %}
+            <div class="ir-field"><label>SLA Deadline</label><div class="ir-field-value {% if md.sla_breached %}text-danger{% endif %}">{{ md.sla_deadline|date:"d.m.Y H:i" }} {% if md.sla_breached %}(BREACHED){% endif %}</div></div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="ir-card ir-notes">
+        <h3>Analyst Notes</h3>
+        <form method="post" action="{% url 'fir_method_extension:save_notes' md.incident.id %}">
+            {% csrf_token %}
+            <textarea name="analyst_notes" placeholder="Add observations, findings, or context here...">{{ md.analyst_notes }}</textarea>
+            <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; color: var(--text-muted);">
+                    {% if md.notes_updated_at %}Last updated: {{ md.notes_updated_at|date:"d.m.Y H:i" }}{% endif %}
+                </span>
+                <button type="submit" class="ir-btn ir-btn-success">Save Notes</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="ir-card" style="margin-top: 16px; background: #f8fafc; border-left: 4px solid var(--accent);">
+        <h3>Phase & Status Control</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            Current Status: <strong>{{ md.incident.status.name }}</strong> | 
+            Current Phase: <strong>{{ md.get_current_phase|default:1 }}</strong>
+        </p>
+        <form method="post" action="{% url 'fir_method_extension:update_status' md.incident.id %}" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+            {% csrf_token %}
+            <div style="flex: 1; min-width: 220px;">
+                <label style="font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Select Target Phase</label>
+                <select name="status" required style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-input); color: var(--text-primary);">
+                    <option value="">-- Choose Phase --</option>
+                    
+                    {% with current=md.get_current_phase|default:1 %}
+                    
+                    <option value="Open" {% if current == 1 %}selected{% endif %}>Phase 1: Detection & Analysis</option>
+                    
+                    {% if current >= 1  %}
+                    <option value="Contained" {% if current == 2 %}selected{% endif %}>Phase 2: Damage Minimization</option>
+                    {% endif %}
+                    
+                    {% if current >= 2 %}
+                    <option value="Recovering" {% if current == 3 %}selected{% endif %}>Phase 3: Eradication & Recovery</option>
+                    {% endif %}
+                    
+                    
+                    {% if current >= 3 %}
+                    <option value="Resolved" {% if current == 4 %}selected{% endif %}>Phase 4: Post-Incident Analysis</option>
+                    {% endif %}
+                    
+                    
+                    <option value="Closed" {% if md.incident.status.name == "Closed" %}selected{% endif %}>Phase 5: Closed (Final)</option>
+                    {% endwith %}
+                </select>
+            </div>
+            <button type="submit" class="ir-btn">Update Phase & Status</button>
+        </form>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+            Note: You can move forward one step at a time, or return to any previously completed phase. Closing is always available.
+        </p>
+    </div>
+
+
+    {% if md.applied_playbook and steps %}
+    <div class="ir-card" style="margin-top: 16px;">
+        <h3>Playbook Steps</h3>
+        <div class="steps-list">
+            {% for item in steps %}
+            <div class="step-item step-{{ item.status }}">
+                <div class="step-header">
+                    <span class="step-title">Step {{ item.step.order }}: {{ item.step.title }}</span>
+                    <span class="step-status {{ item.status }}">{{ item.status }}</span>
+                </div>
+                <p class="step-instruction">{{ item.step.instruction }}</p>
+                {% if item.step.expected_outcome %}
+                <p class="step-expected"><strong>Expected:</strong> {{ item.step.expected_outcome }}</p>
+                {% endif %}
+                
+                
+                {% if item.status != 'completed' and item.execution_id %}
+                <form method="post" action="{% url 'fir_method_extension:update_step' item.execution_id %}" class="step-form">
+                    {% csrf_token %}
+                    <select name="status">
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                        <option value="skipped">Skipped</option>
+                    </select>
+                    <input type="text" name="notes" placeholder="Notes (optional)" value="{{ item.notes }}">
+                    <button type="submit">Update</button>
+                </form>
+                
+                
+                {% elif item.status == 'completed' %}
+                <p class="step-meta">
+                    Executed by {{ item.executed_by.username|default:"System" }} at {{ item.executed_at|date:"d.m.Y H:i" }}
+                    {% if item.notes %}<br><strong>Notes:</strong> {{ item.notes }}{% endif %}
+                </p>
+                
+            
+                {% else %}
+                <p style="color: var(--warning); font-size: 13px;">
+                    Step not initialized. <a href="#" onclick="location.reload(); return false;">Refresh page</a> to retry.
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="ir-card export-section">
+        <h3>Export Report</h3>
+        <p style="color: var(--text-secondary); margin: 0 0 12px 0;">Generate a complete report with incident details, playbook execution, and phase transition log.</p>
+        <div class="export-buttons">
+            <a href="{% url 'fir_method_extension:export_report' md.incident.id %}?format=csv" class="ir-btn">Download CSV</a>
+            <a href="{% url 'fir_method_extension:export_report' md.incident.id %}?format=html" class="ir-btn ir-btn-secondary" target="_blank">Preview HTML</a>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
